@@ -23,11 +23,6 @@ if ($_SERVER['REQUEST_URI'] === '/feedback') {
             $data = "Seu feedback foi enviado com sucesso.";
         }
 
-//        echo $feedback['name']."\n<br>";
-//        echo $feedback['email']."\n<br>";
-//        echo $feedback['feedback']."\n<br>";
-//        array_push($forms_data, $feedback);
-//        $data = "Your feedback submitted successfully.";
     }
     if($_SERVER['REQUEST_METHOD'] === 'GET'){
         $form_html = file_get_contents('form.html');

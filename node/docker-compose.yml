@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  app:
+    build: .
+    restart: always
+    container_name: pweb-node
+    volumes:
+      - .:/app
+    working_dir: /app
+    ports:
+      - "3000:3000"
