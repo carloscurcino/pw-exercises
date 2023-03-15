@@ -1,32 +1,48 @@
+from wsgiref import headers
 import wsgiref.simple_server
 import urllib.parse
+
 
 def app(environ, start_response):
     path = environ["PATH_INFO"]
     method = environ["REQUEST_METHOD"]
-    data=b""
+    data = b""
     forms_data = []
+    headers = [("Content-Type", "text/plain")]
+
     if path == "/":
         data = b"Hello, Web!\n"
-    if path == "/feedback":
+    elif path == "/feedback":
         if method == "POST":
             input_obj = environ["wsgi.input"]
             input_length = int(environ["CONTENT_LENGTH"])
             body = input_obj.read(input_length).decode('utf-8')
             params = urllib.parse.parse_qs(body, keep_blank_values=True)
-            req = { 
-                "name" : params.get('name', [''])[0],
-                "email" : params.get('email', [''])[0],
-                "message" : params.get('message', [''])[0]
+            req = {
+                "name": params.get('name', [''])[0],
+                "email": params.get('email', [''])[0],
+                "message": params.get('message', [''])[0]
             }
             forms_data.append(req)
-            data = b"Your feedback submitted successfully."
-            
-    start_response("200 OK", [
-        ("Content-Type", "text/plain"),
-        ("Content-Length", str(len(data)))
-    ])
+            # data = b"Your feedback submitted successfully."
+            data = f"Feedback submitted successfully \n Name: {req['name']} \n Email: {req['email']} \n Message: {req['message']}".encode(
+                'utf-8')
+        if method == "GET":
+            with open("form.html", "rb") as f:
+                data = f.read()
+            start_response("200 OK", [("Content-Type", "text/html")])
+            return iter([data])
+
+    else:
+        headers = [("Content-Type", "text/plain"), ("Content-Length", "13")]
+        data = b"404 Not Found"
+
+    status = "200 OK" if headers[0][1] == "text/plain" else "404 Not Found"
+    headers.append(("Content-Length", str(len(data))))
+    start_response(status, headers)
+
     return iter([data])
+
 
 if __name__ == '__main__':
     w_s = wsgiref.simple_server.make_server(
